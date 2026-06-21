@@ -384,6 +384,13 @@
   }
   .portal:nth-child(even){ direction:rtl; }
   .portal:nth-child(even) .portal-scene, .portal:nth-child(even) .portal-info{ direction:ltr; }
+  .portal[data-reveal-portal]{
+    opacity:0;
+    transition:opacity 1.2s ease;
+  }
+  .portal[data-reveal-portal].is-in{
+    opacity:1;
+  }
   .portal-scene{
     position:relative; aspect-ratio:5/4; transform-style:preserve-3d;
     transform:rotateY(-14deg) rotateX(6deg);
@@ -391,6 +398,28 @@
     filter:saturate(.7) brightness(.7);
     border:1px solid var(--border);
     overflow:hidden;
+  }
+  .portal[data-reveal-portal] .portal-scene{
+    transform:rotateY(-28deg) rotateX(12deg) scale(0.92);
+    opacity:0;
+    transition:transform 1.6s cubic-bezier(.2,.7,.2,1), filter .6s ease, opacity 1.6s cubic-bezier(.2,.7,.2,1);
+  }
+  .portal[data-reveal-portal].is-in .portal-scene{
+    transform:rotateY(-14deg) rotateX(6deg) scale(1);
+    opacity:1;
+  }
+  .portal[data-reveal-portal].is-in:hover .portal-scene{
+    transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .6s ease;
+  }
+  .portal[data-reveal-portal] .portal-info{
+    opacity:0;
+    transform:translateY(32px);
+    transition:transform 1.2s cubic-bezier(.2,.7,.2,1), opacity 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .portal[data-reveal-portal].is-in .portal-info{
+    opacity:1;
+    transform:none;
+    transition-delay:.25s;
   }
   .portal-canvas{
     position:absolute;
@@ -490,6 +519,31 @@
   .principles .head h2 em{ color:var(--accent); font-style:normal; }
   .principle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(32px,5vw,80px); }
   .principle{ display:flex; flex-direction:column; gap:28px; }
+  .principle[data-reveal-principle]{
+    opacity:0;
+    transform:translateY(40px);
+    transition:opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .principle[data-reveal-principle] .sculpture{
+    transform:scale(0.4);
+    opacity:0;
+    transition:transform 1.2s cubic-bezier(.34, 1.56, 0.64, 1), opacity 1.2s ease;
+  }
+  .principle[data-reveal-principle].is-in{
+    opacity:1;
+    transform:none;
+  }
+  .principle[data-reveal-principle].is-in .sculpture{
+    transform:scale(1);
+    opacity:1;
+  }
+  .principle-grid .principle:nth-child(1){ transition-delay:0s; }
+  .principle-grid .principle:nth-child(1) .sculpture{ transition-delay:0.1s; }
+  .principle-grid .principle:nth-child(2){ transition-delay:0.15s; }
+  .principle-grid .principle:nth-child(2) .sculpture{ transition-delay:0.25s; }
+  .principle-grid .principle:nth-child(3){ transition-delay:0.3s; }
+  .principle-grid .principle:nth-child(3) .sculpture{ transition-delay:0.4s; }
+
   .principle .sculpture{
     height:160px; display:grid; place-items:center;
     perspective:600px; border-top:1px solid var(--border); padding-top:24px;
@@ -578,12 +632,28 @@
   .origen .origen-copy h2{
     font-size:clamp(34px, 5.2vw, 68px); line-height:1.01; letter-spacing:-.032em;
     margin-bottom:0;
+    opacity:0;
+    transform:translateY(32px);
+    transition:opacity 1.4s cubic-bezier(.2,.7,.2,1), transform 1.4s cubic-bezier(.2,.7,.2,1);
   }
   .origen .origen-copy h2 .l2{ display:block; max-width:13ch; margin-top:.16em; color:var(--accent); }
   .origen .coord{
     margin-top:var(--gap-xl); display:flex; gap:32px; flex-wrap:wrap;
     font-family:var(--font-mono); font-size:11px; letter-spacing:.18em;
     text-transform:uppercase; color:var(--muted);
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .origen.is-in .origen-copy h2{
+    opacity:1;
+    transform:none;
+    transition-delay:.2s;
+  }
+  .origen.is-in .coord{
+    opacity:1;
+    transform:none;
+    transition-delay:.4s;
   }
   .origen .coord span{ display:inline-flex; align-items:center; gap:10px; }
   .origen .coord span::before{ content:""; width:8px; height:1px; background:var(--muted); }
@@ -595,6 +665,14 @@
     background:radial-gradient(circle at 50% 48%, color-mix(in oklch, var(--bg) 16%, transparent) 0 18%, transparent 52%);
   }
   .cta .cta-inner{ max-width:32ch; position:relative; z-index:1; }
+  .cta .eyebrow,
+  .cta h2,
+  .cta .btn-primary,
+  .cta .links {
+    opacity:0;
+    transform:translateY(24px);
+    transition:opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
   .cta .eyebrow{ color:color-mix(in oklch, var(--fg) 70%, transparent); }
   .cta h2{
     font-size:clamp(34px, 5.5vw, 72px); line-height:1; letter-spacing:-.04em; margin-bottom:var(--gap-lg);
@@ -606,6 +684,13 @@
     margin-top:var(--gap-2xl); display:flex; gap:clamp(16px,3vw,40px); flex-wrap:wrap; justify-content:center;
     font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase;
   }
+  .cta.is-in .eyebrow{ opacity:1; transform:none; transition-delay:0s; }
+  .cta.is-in h2{ opacity:1; transform:none; transition-delay:0.12s; }
+  .cta.is-in .btn-primary{ opacity:1; transform:none; transition-delay:0.25s; }
+  .cta.is-in .btn-primary:hover{
+    transition:transform .18s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease, color .3s ease, box-shadow .4s ease;
+  }
+  .cta.is-in .links{ opacity:1; transform:none; transition-delay:0.38s; }
   .cta .links a{ color:var(--muted); position:relative; padding-bottom:4px; transition:color .25s ease; }
   .cta .links a::after{
     content:""; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--fg);
@@ -1081,7 +1166,7 @@
       </div>
       <div class="portal-stack">
 
-        <article class="portal" data-od-id="umbra">
+        <article class="portal" data-reveal-portal data-od-id="umbra">
           <div class="portal-scene scene-umbra" role="img" aria-label="Escena atmosférica de UMBRA">
             <canvas class="portal-canvas" data-universe="umbra"></canvas>
             <div class="grain"></div>
@@ -1096,7 +1181,7 @@
           </div>
         </article>
  
-        <article class="portal" data-od-id="paramo">
+        <article class="portal" data-reveal-portal data-od-id="paramo">
           <div class="portal-scene scene-paramo" role="img" aria-label="Escena atmosférica de PÁRAMO">
             <canvas class="portal-canvas" data-universe="paramo"></canvas>
             <div class="grain"></div>
@@ -1111,7 +1196,7 @@
           </div>
         </article>
  
-        <article class="portal" data-od-id="anima">
+        <article class="portal" data-reveal-portal data-od-id="anima">
           <div class="portal-scene scene-anima" role="img" aria-label="Escena atmosférica de ANIMA">
             <canvas class="portal-canvas" data-universe="anima"></canvas>
             <div class="grain"></div>
@@ -1138,19 +1223,19 @@
         <h2 id="pri-h">No se trata de <em>genre</em>. Se trata de <em>postura</em>.</h2>
       </div>
       <div class="principle-grid">
-        <div class="principle">
+        <div class="principle" data-reveal-principle>
           <div class="sculpture"><div class="sculpt sculpt-1"><div class="face"></div><div class="face"></div><div class="face"></div><div class="face"></div><div class="face"></div><div class="face"></div></div></div>
           <p class="num">01 / Identidad</p>
           <h3>Mundos con identidad.</h3>
           <p class="desc">Cada universo se construye desde su propia lógica. Lo que se ve, lo que se escucha y lo que se siente nace de una voz que no podría ser otra.</p>
         </div>
-        <div class="principle">
+        <div class="principle" data-reveal-principle>
           <div class="sculpture"><div class="sculpt sculpt-2"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div></div></div>
           <p class="num">02 / Emoción</p>
           <h3>Tecnología al servicio de la emoción.</h3>
           <p class="desc">El motor, el shader y el sistema son medios, no fines. Si una técnica no intensifica lo que el jugador siente, la retiramos.</p>
         </div>
-        <div class="principle">
+        <div class="principle" data-reveal-principle>
           <div class="sculpture"><div class="sculpt sculpt-3"><div class="shard"></div><div class="shard"></div><div class="shard"></div><div class="shard"></div></div></div>
           <p class="num">03 / Riesgo</p>
           <h3>Riesgo creativo como método.</h3>
@@ -1659,7 +1744,7 @@
       }
     });
   }, { threshold: 0.25 });
-  document.querySelectorAll('[data-reveal],[data-reveal-leak],[data-reveal-origen],[data-reveal-cta]').forEach(el => io.observe(el));
+  document.querySelectorAll('[data-reveal],[data-reveal-leak],[data-reveal-origen],[data-reveal-cta],[data-reveal-portal],[data-reveal-principle]').forEach(el => io.observe(el));
   document.querySelectorAll('[data-reveal]').forEach(el => {
     const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.4 });
     obs.observe(el);
@@ -1674,6 +1759,14 @@
   });
   document.querySelectorAll('[data-reveal-cta]').forEach(el => {
     const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.4 });
+    obs.observe(el);
+  });
+  document.querySelectorAll('[data-reveal-portal]').forEach(el => {
+    const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.25 });
+    obs.observe(el);
+  });
+  document.querySelectorAll('[data-reveal-principle]').forEach(el => {
+    const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.25 });
     obs.observe(el);
   });
 
