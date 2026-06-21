@@ -134,12 +134,25 @@
   }
   .brandmark{
     font-family:var(--font-brand); font-weight:800; font-size:19px;
-    letter-spacing:.16em; color:var(--fg); display:inline-flex; align-items:baseline; gap:5px;
+    letter-spacing:.16em; color:var(--fg); display:inline-flex; align-items:center; gap:8px;
   }
   .brandmark::before{
     content:""; display:inline-block; width:8px; height:8px;
     background:var(--accent); transform:translateY(-1px);
     clip-path:polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .topnav .brandmark::before {
+    display: none;
+  }
+  .brandmark-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%; /* Solid circle vignette */
+    background: #120320; /* Matching deep violet eclipse */
+    display: block;
+    object-fit: contain;
+    border: 1px solid color-mix(in oklch, var(--border) 40%, transparent);
+    box-shadow: 0 0 12px rgba(18, 3, 32, 0.6);
   }
   .topnav nav{ display:flex; gap:var(--gap-lg); }
   .topnav nav a{
@@ -1115,7 +1128,7 @@
 <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
 
 <header class="topnav">
-  <a class="brandmark" href="#top" aria-label="ASURA — inicio">ASURA</a>
+  <a class="brandmark" href="#top" aria-label="ASURA — inicio"><img class="brandmark-logo" src="logo2.svg" alt="" />ASURA</a>
   <nav aria-label="Principal">
     <a href="#manifiesto">Manifiesto</a>
     <a href="#universos">Universos</a>
