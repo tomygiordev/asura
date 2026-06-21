@@ -1,0 +1,1089 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ASURA — Estudio argentino de videojuegos</title>
+<meta name="description" content="ASURA. Estudio argentino de videojuegos, narrativa y experiencias interactivas. Creamos mundos que todavía no existen." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;800;900&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:        oklch(15% 0.008 60);
+    --surface:   oklch(22% 0.010 250);
+    --fg:        oklch(92% 0.018 85);
+    --muted:     oklch(58% 0.012 250);
+    --border:    oklch(30% 0.010 250);
+    --accent:    oklch(42% 0.18 27);
+    --amber:     oklch(70% 0.13 68);
+    --glacial:   oklch(75% 0.06 220);
+    --accent-deep: oklch(28% 0.14 27);
+    --accent-soft: color-mix(in oklch, var(--accent) 16%, transparent);
+    --fg-soft:     color-mix(in oklch, var(--fg) 8%, transparent);
+    --font-display: 'Chivo', 'Arial Narrow', sans-serif;
+    --font-body:    'Space Grotesk', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-mono:    'Space Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
+    --fs-mega:   clamp(48px, 9vw, 120px);
+    --fs-h1:     clamp(32px, 5vw, 64px);
+    --fs-h2:     clamp(26px, 3.4vw, 40px);
+    --fs-h3:     clamp(19px, 1.6vw, 24px);
+    --fs-lead:   clamp(16px, 1.3vw, 19px);
+    --fs-body:   15px;
+    --fs-meta:   12px;
+    --gap-xs: 8px; --gap-sm: 12px; --gap-md: 18px; --gap-lg: 28px; --gap-xl: 40px; --gap-2xl: 72px;
+    --container: 1080px;
+    --gutter: clamp(24px, 4vw, 64px);
+    --radius: 2px;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; }
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:var(--font-body); font-size:var(--fs-body); line-height:1.55;
+    text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font:inherit; cursor:pointer; color:inherit; background:none; border:none; }
+  p{ text-wrap:pretty; margin:0; }
+  h1,h2,h3,h4{ text-wrap:balance; margin:0; font-family:var(--font-display); font-weight:800; letter-spacing:-0.035em; line-height:1.02; }
+  ::selection{ background:var(--accent); color:var(--fg); }
+  :focus-visible{ outline:1px solid var(--accent); outline-offset:3px; }
+  .skip{ position:absolute; left:-9999px; top:0; z-index:200; background:var(--bg); color:var(--fg); padding:12px 18px; border:1px solid var(--accent); font-family:var(--font-mono); font-size:12px; }
+  .skip:focus{ left:16px; top:16px; }
+
+  /* ─── layers ─── */
+  #artifact-canvas{
+    position:fixed; inset:0; width:100vw; height:100vh; z-index:1;
+    pointer-events:none; display:block;
+  }
+  .bg-base{
+    position:fixed; inset:0; z-index:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, oklch(20% 0.012 60), transparent 70%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, oklch(18% 0.02 250), transparent 60%),
+      var(--bg);
+  }
+  .bg-shift{
+    position:fixed; inset:0; z-index:0; opacity:0;
+    background:
+      radial-gradient(ellipse 90% 100% at 50% 50%, oklch(34% 0.16 27), oklch(22% 0.10 27) 60%, oklch(15% 0.04 27) 100%);
+    transition:opacity .4s linear; pointer-events:none;
+  }
+  .dust-fallback{
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1px 1px at 78% 64%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1px 1px at 33% 88%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1px 1px at 64% 12%, var(--muted) 50%, transparent 51%),
+      radial-gradient(1px 1px at 91% 48%, var(--muted) 50%, transparent 51%);
+    background-size:100% 100%;
+  }
+  .bg-type{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    display:grid; place-items:center; overflow:hidden;
+  }
+  .bg-type span{
+    font-family:var(--font-display); font-weight:800;
+    font-size:clamp(120px, 22vw, 280px);
+    letter-spacing:-.04em; line-height:.85;
+    color:transparent; -webkit-text-stroke:1px color-mix(in oklch, var(--fg) 8%, transparent);
+    opacity:.5; white-space:nowrap;
+  }
+
+  /* ─── topnav ─── */
+  .topnav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px var(--gutter);
+    background:linear-gradient(to bottom, color-mix(in oklch, var(--bg) 70%, transparent), transparent);
+    backdrop-filter:blur(6px) saturate(1.1);
+  }
+  .brandmark{
+    font-family:var(--font-display); font-weight:800; font-size:18px;
+    letter-spacing:.32em; color:var(--fg); display:inline-flex; align-items:baseline; gap:4px;
+  }
+  .brandmark::before{
+    content:""; display:inline-block; width:8px; height:8px;
+    background:var(--accent); transform:translateY(-1px);
+    clip-path:polygon(50% 0, 100% 100%, 0 100%);
+  }
+  .topnav nav{ display:flex; gap:var(--gap-lg); }
+  .topnav nav a{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--muted);
+    transition:color .25s ease;
+  }
+  .topnav nav a:hover{ color:var(--fg); }
+  .topnav .nav-cta{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--fg);
+    border:1px solid var(--border); padding:9px 16px;
+    transition:border-color .25s ease, color .25s ease;
+  }
+  .topnav .nav-cta:hover{ border-color:var(--accent); color:var(--accent); }
+  @media (max-width:760px){ .topnav nav{ display:none; } }
+
+  /* ─── layout ─── */
+  main{ position:relative; z-index:2; }
+  .section{ min-height:100vh; padding:clamp(80px,12vh,140px) var(--gutter); position:relative; display:flex; flex-direction:column; justify-content:center; }
+  .container{ max-width:var(--container); margin-inline:auto; width:100%; }
+  .stack{ display:flex; flex-direction:column; }
+  .stack>*+*{ margin-top:var(--gap-md); }
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 var(--gap-md);
+  }
+  .mono{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  .muted{ color:var(--muted); }
+
+  /* ─── buttons ─── */
+  .btn{
+    position:relative; display:inline-flex; align-items:center; gap:10px;
+    padding:14px 26px; border:1px solid transparent;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.16em;
+    text-transform:uppercase; font-weight:700;
+    transition:transform .18s cubic-bezier(.2,.7,.2,1), background .3s ease, border-color .3s ease, color .3s ease, box-shadow .4s ease;
+    cursor:pointer; overflow:hidden; isolation:isolate;
+  }
+  .btn::before{
+    content:""; position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(120deg, transparent 30%, color-mix(in oklch, var(--fg) 14%, transparent) 50%, transparent 70%);
+    transform:translateX(-120%); transition:transform .7s cubic-bezier(.2,.7,.2,1);
+    pointer-events:none;
+  }
+  .btn:hover::before{ transform:translateX(120%); }
+  .btn:active{ transform:translateY(1px) scale(.985); }
+  .btn:focus-visible{ outline:none; box-shadow:0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
+  .btn-primary{ background:var(--accent); color:var(--fg); border-color:var(--accent); }
+  .btn-primary:hover{
+    background:var(--accent-deep); border-color:var(--accent-deep);
+    box-shadow:0 0 0 1px color-mix(in oklch, var(--accent) 40%, transparent), 0 12px 40px -8px color-mix(in oklch, var(--accent) 55%, transparent);
+    transform:translateY(-1px);
+  }
+  .btn-primary:active{ transform:translateY(0) scale(.985); }
+  .btn-secondary{ background:transparent; color:var(--fg); border-color:var(--border); }
+  .btn-secondary::after{
+    content:""; position:absolute; inset:0; z-index:-1;
+    background:color-mix(in oklch, var(--fg) 6%, transparent);
+    transform:scaleX(0); transform-origin:left; transition:transform .4s cubic-bezier(.2,.7,.2,1);
+    pointer-events:none;
+  }
+  .btn-secondary:hover{ border-color:var(--fg); color:var(--fg); }
+  .btn-secondary:hover::after{ transform:scaleX(1); }
+  .btn-arrow::after{
+    content:"→"; transition:transform .28s cubic-bezier(.2,.7,.2,1), color .28s ease;
+    color:color-mix(in oklch, currentColor 70%, transparent);
+  }
+  .btn-arrow:hover::after{ transform:translateX(5px); color:var(--fg); }
+  .btn-primary.btn-arrow:hover::after{ color:var(--fg); }
+
+  /* ─── HERO ─── */
+  .hero{ align-items:center; text-align:center; }
+  .hero .hero-brand{
+    font-family:var(--font-display); font-weight:900;
+    font-size:clamp(40px, 7vw, 96px); letter-spacing:.1em;
+    line-height:.94; margin:0 0 var(--gap-lg);
+    text-shadow:0 0 60px color-mix(in oklch, var(--accent) 30%, transparent);
+    display:inline-flex; align-items:baseline; gap:.06em;
+  }
+  .hero .hero-brand .a-glyph{
+    color:var(--accent); display:inline-block; transform:translateY(.02em);
+  }
+  .hero h1{
+    font-size:var(--fs-h1); max-width:15ch; margin:0 auto var(--gap-md);
+    line-height:1.01; letter-spacing:-.045em;
+    color:var(--fg);
+  }
+  .hero .lead{
+    font-size:var(--fs-lead); color:var(--muted); max-width:46ch; margin:0 auto var(--gap-lg);
+    font-weight:300; letter-spacing:.01em;
+  }
+  .hero-cta{ display:inline-flex; gap:var(--gap-md); flex-wrap:wrap; justify-content:center; }
+  .scroll-cue{
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .scroll-cue .line{
+    width:1px; height:42px; background:linear-gradient(to bottom, transparent, var(--muted) 50%, var(--accent));
+    animation:cuePulse 3.2s ease-in-out infinite;
+  }
+  @keyframes cuePulse{ 0%,100%{ opacity:.3; transform:scaleY(.7); transform-origin:top; } 50%{ opacity:1; transform:scaleY(1); } }
+
+  /* ─── MANIFIESTO ─── */
+  .manifesto{ align-items:flex-start; }
+  .manifesto .frag{ display:block; position:relative; }
+  .manifesto .frag .word{
+    display:block; font-family:var(--font-display); font-weight:800;
+    font-size:clamp(34px, 5.5vw, 80px); line-height:1.01; letter-spacing:-.04em;
+    color:var(--fg); opacity:0; transform:translateY(40px);
+    transition:opacity 1.2s cubic-bezier(.2,.7,.2,1), transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .manifesto .frag.is-in .word{ opacity:1; transform:none; }
+  .manifesto .frag:nth-child(2){ padding-left:clamp(24px, 6vw, 96px); margin-top:clamp(16px,3vh,28px); }
+  .manifesto .frag:nth-child(3){ padding-left:clamp(40px, 12vw, 180px); margin-top:clamp(16px,3vh,28px); }
+  .manifesto .frag:nth-child(2) .word{ color:var(--fg); -webkit-text-stroke:0; }
+  .manifesto .frag:nth-child(3) .word{ color:var(--accent); }
+  .manifesto .leak{
+    margin-top:var(--gap-xl); max-width:52ch; padding-left:0;
+    font-size:var(--fs-lead); color:var(--muted); font-weight:300;
+    opacity:0; transform:translateY(20px);
+    transition:opacity 1s ease .3s, transform 1s ease .3s;
+  }
+  .manifesto .leak.is-in{ opacity:1; transform:none; }
+  .manifesto .leak::before{
+    content:""; display:block; width:48px; height:1px; background:var(--accent);
+    margin-bottom:24px;
+  }
+
+  /* ─── UNIVERSOS ─── */
+  .universes{ align-items:flex-start; }
+  .universes .head{ margin-bottom:clamp(40px,6vh,72px); max-width:52ch; }
+  .universes .head .eyebrow{ color:var(--muted); }
+  .universes .head h2{ font-size:var(--fs-h2); }
+  .universes .head .eyebrow .dot{ color:var(--accent); }
+  .portal-stack{ display:flex; flex-direction:column; gap:clamp(40px,7vh,88px); }
+  .portal{
+    position:relative; display:grid; grid-template-columns:1fr 1fr;
+    gap:clamp(28px,4vw,56px); align-items:center;
+    perspective:1200px;
+  }
+  .portal:nth-child(even){ direction:rtl; }
+  .portal:nth-child(even) .portal-scene, .portal:nth-child(even) .portal-info{ direction:ltr; }
+  .portal-scene{
+    position:relative; aspect-ratio:5/4; transform-style:preserve-3d;
+    transform:rotateY(-14deg) rotateX(6deg);
+    transition:transform .8s cubic-bezier(.2,.7,.2,1), filter .6s ease;
+    filter:saturate(.7) brightness(.7);
+    border:1px solid var(--border);
+    overflow:hidden;
+  }
+  .portal:hover .portal-scene{ transform:rotateY(-6deg) rotateX(2deg) translateZ(20px); filter:saturate(1) brightness(1); }
+  .portal-scene::before{
+    content:""; position:absolute; inset:0; z-index:2;
+    background:
+      linear-gradient(180deg, transparent 40%, color-mix(in oklch, var(--bg) 60%, transparent) 100%),
+      radial-gradient(ellipse at 50% 130%, var(--accent-soft), transparent 60%);
+    pointer-events:none;
+  }
+  .portal-scene::after{
+    content:""; position:absolute; inset:0; z-index:3;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, var(--fg) 50%, transparent 51%),
+      radial-gradient(1px 1px at 70% 50%, var(--fg) 50%, transparent 51%),
+      radial-gradient(1px 1px at 40% 80%, var(--fg) 50%, transparent 51%),
+      radial-gradient(1px 1px at 85% 20%, var(--fg) 50%, transparent 51%),
+      radial-gradient(1px 1px at 15% 70%, var(--fg) 50%, transparent 51%);
+    opacity:0; transition:opacity .6s ease;
+  }
+  .portal:hover .portal-scene::after{ opacity:.6; }
+  .scene-umbra{
+    background:
+      radial-gradient(ellipse 50% 70% at 30% 40%, oklch(28% 0.05 250), transparent 60%),
+      radial-gradient(ellipse 40% 60% at 75% 65%, oklch(20% 0.04 200), transparent 70%),
+      linear-gradient(160deg, oklch(14% 0.01 240), oklch(10% 0.005 240));
+  }
+  .scene-paramo{
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 80%, oklch(32% 0.06 60), transparent 70%),
+      radial-gradient(ellipse 30% 50% at 80% 30%, oklch(18% 0.02 60), transparent 70%),
+      linear-gradient(180deg, oklch(12% 0.005 60), oklch(20% 0.02 60));
+  }
+  .scene-anima{
+    background:
+      radial-gradient(ellipse 60% 60% at 60% 50%, oklch(30% 0.10 27), transparent 60%),
+      radial-gradient(ellipse 40% 50% at 20% 80%, oklch(18% 0.05 27), transparent 70%),
+      linear-gradient(140deg, oklch(14% 0.01 27), oklch(18% 0.04 27));
+  }
+  .portal-scene .grain{
+    position:absolute; inset:0; z-index:1; opacity:.18; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .6 0 0 0 0 .55 0 0 0 0 .45 0 0 0 .5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .portal-scene .horizon{
+    position:absolute; left:0; right:0; bottom:32%; height:1px; z-index:1;
+    background:linear-gradient(to right, transparent, color-mix(in oklch, var(--fg) 30%, transparent), transparent);
+  }
+  .portal-info{ padding-inline:clamp(8px,2vw,24px); }
+  .portal-info .pid{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.2em;
+    color:var(--muted); text-transform:uppercase; margin-bottom:18px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .portal-info .pid::before{ content:""; width:24px; height:1px; background:var(--accent); }
+  .portal-info h3{
+    font-size:clamp(30px, 4vw, 52px); line-height:1.06; margin-bottom:12px;
+    letter-spacing:-.015em;
+  }
+  .portal-info .genre{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.12em;
+    color:var(--muted); text-transform:uppercase; margin-bottom:24px;
+  }
+  .portal-info .concept{
+    font-size:var(--fs-lead); color:var(--fg); max-width:38ch; font-weight:300;
+    line-height:1.5; margin-bottom:28px;
+  }
+  .portal-info .status{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--accent);
+    padding:6px 12px; border:1px solid color-mix(in oklch, var(--accent) 40%, transparent);
+  }
+  .portal-info .status .pulse{
+    width:6px; height:6px; background:var(--accent); border-radius:50%;
+    animation:statPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes statPulse{ 0%,100%{ opacity:.4; } 50%{ opacity:1; box-shadow:0 0 8px var(--accent); } }
+  @media (max-width:860px){
+    .portal{ grid-template-columns:1fr; gap:24px; }
+    .portal:nth-child(even){ direction:ltr; }
+    .portal-scene{ transform:rotateY(-8deg) rotateX(4deg); }
+  }
+
+  /* ─── PRINCIPIOS ─── */
+  .principles{ background:linear-gradient(180deg, transparent, color-mix(in oklch, var(--surface) 40%, transparent) 30%, transparent); }
+  .principles .head{ margin-bottom:clamp(40px,6vh,80px); max-width:46ch; }
+  .principles .head .eyebrow{ color:var(--muted); }
+  .principles .head h2{ font-size:var(--fs-h2); }
+  .principles .head h2 em{ color:var(--accent); font-style:normal; }
+  .principle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(32px,5vw,80px); }
+  .principle{ display:flex; flex-direction:column; gap:28px; }
+  .principle .sculpture{
+    height:160px; display:grid; place-items:center;
+    perspective:600px; border-top:1px solid var(--border); padding-top:24px;
+  }
+  .principle .sculpt{ width:96px; height:96px; transform-style:preserve-3d; position:relative; }
+  .principle .sculpt .face{
+    position:absolute; inset:0; border:1px solid color-mix(in oklch, var(--fg) 35%, transparent);
+    background:color-mix(in oklch, var(--surface) 50%, transparent);
+  }
+  /* sculpt 1: faceted prism — 4 skewed planes around axis */
+  .sculpt-1{ animation:spin1 16s linear infinite; }
+  .sculpt-1 .face:nth-child(1){ transform:rotateY(0deg) translateZ(40px); }
+  .sculpt-1 .face:nth-child(2){ transform:rotateY(90deg) translateZ(40px); }
+  .sculpt-1 .face:nth-child(3){ transform:rotateY(180deg) translateZ(40px); }
+  .sculpt-1 .face:nth-child(4){ transform:rotateY(270deg) translateZ(40px); }
+  .sculpt-1 .face:nth-child(5){ transform:rotateX(90deg) translateZ(40px); border-color:color-mix(in oklch, var(--accent) 50%, transparent); }
+  .sculpt-1 .face:nth-child(6){ transform:rotateX(-90deg) translateZ(40px); }
+  @keyframes spin1{ to{ transform:rotateY(360deg) rotateX(15deg); } }
+  /* sculpt 2: orbiting rings */
+  .sculpt-2{ animation:spin2 22s linear infinite; }
+  .sculpt-2 .ring{
+    position:absolute; inset:0; border:1px solid color-mix(in oklch, var(--fg) 30%, transparent);
+    border-radius:50%;
+  }
+  .sculpt-2 .ring:nth-child(1){ transform:rotateX(70deg); border-color:color-mix(in oklch, var(--accent) 55%, transparent); }
+  .sculpt-2 .ring:nth-child(2){ transform:rotateY(70deg); }
+  .sculpt-2 .ring:nth-child(3){ transform:rotateX(40deg) rotateY(40deg); }
+  .sculpt-2 .ring:nth-child(4){ transform:rotateX(-30deg) rotateZ(45deg); }
+  @keyframes spin2{ to{ transform:rotateZ(360deg); } }
+  /* sculpt 3: shattered planes */
+  .sculpt-3{ animation:spin3 18s ease-in-out infinite; }
+  .sculpt-3 .shard{
+    position:absolute; width:50%; height:50%; border:1px solid color-mix(in oklch, var(--fg) 35%, transparent);
+    background:color-mix(in oklch, var(--surface) 40%, transparent);
+  }
+  .sculpt-3 .shard:nth-child(1){ top:0; left:0; transform:translateZ(30px) rotate(8deg); }
+  .sculpt-3 .shard:nth-child(2){ top:0; right:0; transform:translateZ(-20px) rotate(-12deg); border-color:color-mix(in oklch, var(--accent) 50%, transparent); }
+  .sculpt-3 .shard:nth-child(3){ bottom:0; left:0; transform:translateZ(10px) rotate(-6deg); }
+  .sculpt-3 .shard:nth-child(4){ bottom:0; right:0; transform:translateZ(40px) rotate(14deg); }
+  @keyframes spin3{ 0%,100%{ transform:rotateY(0) rotateX(8deg); } 50%{ transform:rotateY(180deg) rotateX(-8deg); } }
+  .principle h3{ font-size:var(--fs-h3); line-height:1.15; letter-spacing:-.01em; font-weight:700; }
+  .principle .desc{ color:var(--muted); font-size:15px; max-width:32ch; font-weight:300; line-height:1.55; }
+  .principle .num{ font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; }
+  @media (max-width:860px){ .principle-grid{ grid-template-columns:1fr; gap:48px; } }
+
+  /* ─── ORIGEN ─── */
+  .origen{ align-items:flex-start; }
+  .origen .plain{
+    position:absolute; inset:0; z-index:-1; overflow:hidden; pointer-events:none;
+  }
+  .origen .plain .sky{
+    position:absolute; inset:0 0 50% 0;
+    background:linear-gradient(180deg, oklch(10% 0.005 60), oklch(16% 0.01 60) 70%, oklch(20% 0.02 60));
+  }
+  .origen .plain .ground{
+    position:absolute; inset:50% 0 0 0;
+    background:
+      linear-gradient(180deg, oklch(20% 0.02 60), oklch(12% 0.006 60));
+  }
+  .origen .plain .line{
+    position:absolute; left:0; right:0; top:50%; height:1px;
+    background:linear-gradient(to right, transparent 5%, var(--accent) 30%, var(--accent) 70%, transparent 95%);
+    box-shadow:0 0 24px var(--accent), 0 0 60px color-mix(in oklch, var(--accent) 50%, transparent);
+    transform:scaleX(0); transform-origin:left;
+    transition:transform 1.8s cubic-bezier(.2,.7,.2,1) .2s;
+  }
+  .origen.is-in .plain .line{ transform:scaleX(1); }
+  .origen .plain .distant{
+    position:absolute; left:50%; top:calc(50% - 14px); transform:translateX(-50%);
+    width:10px; height:10px; border-radius:50%;
+    background:var(--accent); box-shadow:0 0 20px var(--accent), 0 0 40px color-mix(in oklch, var(--accent) 60%, transparent);
+    opacity:0; transition:opacity 1.4s ease 1s;
+  }
+  .origen.is-in .plain .distant{ opacity:.85; }
+  .origen .plain .ridge{
+    position:absolute; left:0; right:0; top:calc(50% - 24px); height:24px;
+    background:
+      linear-gradient(135deg, transparent 70%, oklch(18% 0.01 250) 72%, transparent 78%),
+      linear-gradient(160deg, transparent 60%, oklch(16% 0.008 250) 64%, transparent 70%),
+      linear-gradient(110deg, transparent 75%, oklch(20% 0.012 250) 78%, transparent 84%);
+    opacity:.6;
+  }
+  .origen .origen-copy{
+    margin-top:auto; padding-bottom:10vh; max-width:48rem; position:relative; z-index:2;
+  }
+  .origen .origen-copy h2{
+    font-size:clamp(34px, 5.2vw, 68px); line-height:.98; letter-spacing:-.045em;
+    margin-bottom:0;
+  }
+  .origen .origen-copy h2 .l2{ display:block; max-width:13ch; margin-top:.16em; color:var(--accent); }
+  .origen .coord{
+    margin-top:var(--gap-xl); display:flex; gap:32px; flex-wrap:wrap;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .origen .coord span{ display:inline-flex; align-items:center; gap:10px; }
+  .origen .coord span::before{ content:""; width:8px; height:1px; background:var(--muted); }
+
+  /* ─── CTA ─── */
+  .cta{ align-items:center; text-align:center; min-height:100vh; }
+  .cta .cta-inner{ max-width:32ch; }
+  .cta .eyebrow{ color:color-mix(in oklch, var(--fg) 70%, transparent); }
+  .cta h2{
+    font-size:clamp(34px, 5.5vw, 72px); line-height:1; letter-spacing:-.04em; margin-bottom:var(--gap-lg);
+    color:var(--fg);
+  }
+  .cta .btn-primary{ background:var(--fg); color:var(--accent-deep); border-color:var(--fg); }
+  .cta .btn-primary:hover{ background:transparent; color:var(--fg); border-color:var(--fg); }
+  .cta .links{
+    margin-top:var(--gap-2xl); display:flex; gap:clamp(16px,3vw,40px); flex-wrap:wrap; justify-content:center;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+  }
+  .cta .links a{ color:var(--muted); position:relative; padding-bottom:4px; transition:color .25s ease; }
+  .cta .links a::after{
+    content:""; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--fg);
+    transition:width .3s ease;
+  }
+  .cta .links a:hover{ color:var(--fg); }
+  .cta .links a:hover::after{ width:100%; }
+  .cta .recompose{
+    margin-top:var(--gap-xl); font-family:var(--font-display); font-weight:800;
+    font-size:clamp(24px, 4vw, 44px); letter-spacing:.14em; color:var(--fg);
+    display:inline-flex; gap:.04em; line-height:1.1;
+  }
+  .cta .recompose span{
+    display:inline-block; opacity:0; transform:translateY(20px) rotate(-8deg);
+    transition:opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1);
+  }
+  .cta.is-in .recompose span{ opacity:1; transform:none; }
+  .cta.is-in .recompose span:nth-child(1){ transition-delay:.1s; }
+  .cta.is-in .recompose span:nth-child(2){ transition-delay:.25s; }
+  .cta.is-in .recompose span:nth-child(3){ transition-delay:.4s; }
+  .cta.is-in .recompose span:nth-child(4){ transition-delay:.55s; }
+  .cta.is-in .recompose span:nth-child(5){ transition-delay:.7s; }
+
+  /* ─── footer ─── */
+  .pagefoot{
+    position:relative; z-index:2; padding:32px var(--gutter);
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between; align-items:center; gap:var(--gap-md);
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .pagefoot .brandmark{ font-size:13px; }
+
+  /* ─── superimposed HUD ─── */
+  .scroll-progress{
+    position:fixed; top:0; left:0; height:1px; width:0; z-index:100;
+    background:linear-gradient(to right, var(--accent), color-mix(in oklch, var(--accent) 45%, transparent));
+    box-shadow:0 0 10px color-mix(in oklch, var(--accent) 60%, transparent);
+    transition:width .1s linear; pointer-events:none;
+  }
+  .section-num{
+    position:fixed; bottom:24px; left:var(--gutter); z-index:60;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--muted);
+    display:inline-flex; align-items:center; gap:10px;
+    transition:opacity .4s ease, transform .4s ease; pointer-events:none;
+  }
+  .section-num .dot{ width:6px; height:6px; background:var(--accent); border-radius:50%; animation:dotPulse 2.4s ease-in-out infinite; }
+  .section-num.is-hidden{ opacity:0; transform:translateY(8px); }
+  .hud-strip{
+    position:fixed; bottom:24px; right:var(--gutter); z-index:60;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--muted);
+    display:inline-flex; align-items:center; gap:14px;
+    pointer-events:none; transition:opacity .4s ease;
+  }
+  .hud-strip .coord{ display:inline-flex; align-items:center; gap:8px; }
+  .hud-strip .coord::before{ content:""; width:10px; height:1px; background:var(--muted); }
+  .hud-strip .depth{ color:var(--accent); font-variant-numeric:tabular-nums; }
+  @media (max-width:760px){
+    .section-num{ bottom:16px; font-size:9px; letter-spacing:.2em; }
+    .hud-strip{ display:none; }
+  }
+
+  /* ─── hero brackets ─── */
+  .hero-brackets{ position:absolute; inset:clamp(20px,3vw,40px); pointer-events:none; z-index:3; }
+  .hero-brackets .brk{
+    position:absolute; width:26px; height:26px;
+    border:1px solid color-mix(in oklch, var(--accent) 50%, transparent);
+    opacity:0; animation:brkIn .9s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .hero-brackets .tl{ top:0; left:0; border-right:none; border-bottom:none; animation-delay:.3s; }
+  .hero-brackets .tr{ top:0; right:0; border-left:none; border-bottom:none; animation-delay:.42s; }
+  .hero-brackets .bl{ bottom:0; left:0; border-right:none; border-top:none; animation-delay:.54s; }
+  .hero-brackets .br{ bottom:0; right:0; border-left:none; border-top:none; animation-delay:.66s; }
+  @keyframes brkIn{ from{ opacity:0; transform:scale(.5); } to{ opacity:.6; transform:none; } }
+
+  /* ─── hero word stagger ─── */
+  .hero h1 .w{
+    display:inline-block; opacity:0; transform:translateY(28px);
+    animation:heroWord 1s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  .hero h1 .w:nth-child(1){ animation-delay:.25s; }
+  .hero h1 .w:nth-child(2){ animation-delay:.38s; }
+  .hero h1 .w:nth-child(3){ animation-delay:.5s; }
+  .hero h1 .w:nth-child(4){ animation-delay:.62s; }
+  .hero h1 .w:nth-child(5){ animation-delay:.74s; }
+  .hero h1 .w:nth-child(6){ animation-delay:.86s; }
+  @keyframes heroWord{ to{ opacity:1; transform:none; } }
+
+  /* ─── ambient microanimations ─── */
+  .bg-type span{ animation:bgDrift 22s ease-in-out infinite; }
+  @keyframes bgDrift{ 0%,100%{ transform:translateY(0) scale(1); } 50%{ transform:translateY(-1.5%) scale(1.015); } }
+  .brandmark::before{ animation:dotPulse 2.4s ease-in-out infinite; }
+  @keyframes dotPulse{ 0%,100%{ opacity:.5; } 50%{ opacity:1; } }
+  .topnav{ transition:border-color .3s ease, background .3s ease; border-bottom:1px solid transparent; }
+  .topnav.is-scrolled{ border-bottom-color:color-mix(in oklch, var(--border) 70%, transparent); }
+  .hero .hero-brand{ animation:brandIn 1.2s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes brandIn{ from{ opacity:0; transform:translateY(-12px); } to{ opacity:1; transform:none; } }
+  .hero .eyebrow{ animation:eyebrowIn .8s cubic-bezier(.2,.7,.2,1) .1s both; }
+  .hero .lead{ animation:leadIn .9s cubic-bezier(.2,.7,.2,1) 1s both; }
+  .hero .hero-cta{ animation:leadIn .9s cubic-bezier(.2,.7,.2,1) 1.15s both; }
+  @keyframes eyebrowIn{ from{ opacity:0; transform:translateY(-8px); } to{ opacity:1; transform:none; } }
+  @keyframes leadIn{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* ─── reduced motion ─── */
+  @media (prefers-reduced-motion: reduce){
+    #artifact-canvas{ display:none; }
+    .bg-type span{ -webkit-text-stroke:1px color-mix(in oklch, var(--fg) 12%, transparent); animation:none; }
+    .scroll-cue .line{ animation:none; opacity:.6; }
+    .principle .sculpt{ animation:none !important; }
+    .portal-scene{ transform:none !important; }
+    .manifesto .frag .word, .manifesto .leak{ opacity:1; transform:none; transition:none; }
+    .cta .recompose span{ opacity:1; transform:none; transition:none; }
+    .origen .plain .line{ transform:scaleX(1); transition:none; }
+    .origen .plain .distant{ opacity:.7; transition:none; }
+    .hero h1 .w{ opacity:1; transform:none; animation:none; }
+    .hero-brackets .brk{ opacity:.5; transform:none; animation:none; }
+    .hero .hero-brand, .hero .eyebrow, .hero .lead, .hero .hero-cta{ opacity:1; transform:none; animation:none; }
+    .brandmark::before{ animation:none; opacity:.8; }
+    .btn::before, .btn-secondary::after{ display:none; }
+  }
+  @media (max-width:760px){
+    .bg-type span{ font-size:clamp(90px, 32vw, 200px); }
+    .manifesto .frag:nth-child(2){ padding-left:5vw; }
+    .manifesto .frag:nth-child(3){ padding-left:10vw; }
+    .hero .hero-brand{ letter-spacing:.12em; }
+    .topnav{ padding:14px 18px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<div class="bg-base" aria-hidden="true"></div>
+<div class="bg-shift" aria-hidden="true" id="bg-shift"></div>
+<div class="dust-fallback" aria-hidden="true" id="dust-fallback" hidden></div>
+<div class="bg-type" aria-hidden="true"><span>ASURA</span></div>
+<canvas id="artifact-canvas" aria-hidden="true"></canvas>
+<div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
+<header class="topnav">
+  <a class="brandmark" href="#top" aria-label="ASURA — inicio">ASURA</a>
+  <nav aria-label="Principal">
+    <a href="#manifiesto">Manifiesto</a>
+    <a href="#universos">Universos</a>
+    <a href="#estudio">Estudio</a>
+    <a href="#origen">Origen</a>
+  </nav>
+  <a class="nav-cta" href="#contacto">Hablemos</a>
+</header>
+
+<main id="main">
+  <span id="top" aria-hidden="true" style="position:absolute;top:0"></span>
+
+  <!-- 1. HERO -->
+  <section class="section hero" data-od-id="hero" id="hero" aria-labelledby="hero-h1">
+    <div class="hero-brackets" aria-hidden="true">
+      <span class="brk tl"></span><span class="brk tr"></span><span class="brk bl"></span><span class="brk br"></span>
+    </div>
+    <div class="container">
+      <p class="eyebrow">Estudio argentino · Videojuegos</p>
+      <h1 class="hero-brand" aria-label="ASURA"><span class="a-glyph">A</span>SUR<span class="a-glyph">A</span></h1>
+      <h1 id="hero-h1" aria-label="Creamos mundos que todavía no existen."><span class="w">Creamos</span> <span class="w">mundos</span> <span class="w">que</span> <span class="w">todavía</span> <span class="w">no</span> <span class="w">existen.</span></h1>
+      <p class="lead">Estudio argentino de videojuegos, narrativa y experiencias interactivas.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-arrow" href="#manifiesto">Entrar al universo</a>
+        <a class="btn btn-secondary" href="#estudio">Conocer el estudio</a>
+      </div>
+    </div>
+    <div class="scroll-cue" aria-hidden="true">
+      <span>Descender hacia el núcleo</span>
+      <span class="line"></span>
+    </div>
+  </section>
+
+  <!-- 2. MANIFIESTO -->
+  <section class="section manifesto" data-od-id="manifiesto" id="manifiesto" aria-labelledby="man-h">
+    <div class="container">
+      <h2 id="man-h" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Manifiesto</h2>
+      <p class="frag" data-reveal><span class="word">No repetimos mundos.</span></p>
+      <p class="frag" data-reveal><span class="word">Los inventamos.</span></p>
+      <p class="frag" data-reveal><span class="word">Desde el sur, hacia todas partes.</span></p>
+      <p class="leak" data-reveal-leak>ASURA es un estudio independiente argentino donde el diseño, la tecnología y la narrativa se encuentran para crear experiencias con identidad propia.</p>
+    </div>
+  </section>
+
+  <!-- 3. UNIVERSOS -->
+  <section class="section universes" data-od-id="universos" id="universos" aria-labelledby="uni-h">
+    <div class="container">
+      <div class="head">
+        <p class="eyebrow"><span class="dot">●</span>&nbsp;Portales en construcción</p>
+        <h2 id="uni-h">Tres universos. Tres formas de habitar lo desconocido.</h2>
+      </div>
+      <div class="portal-stack">
+
+        <article class="portal" data-od-id="umbra">
+          <div class="portal-scene scene-umbra" role="img" aria-label="Escena atmosférica de UMBRA">
+            <div class="grain"></div>
+            <div class="horizon"></div>
+          </div>
+          <div class="portal-info">
+            <p class="pid">01 / UMBRA</p>
+            <h3>UMBRA</h3>
+            <p class="genre">Aventura narrativa</p>
+            <p class="concept">Una ciudad que se recuerda a sí misma cada noche. Caminás sus calles buscando el nombre que perdiste antes de que la luz vuelva a borrarlo.</p>
+            <p class="status"><span class="pulse"></span>En desarrollo</p>
+          </div>
+        </article>
+
+        <article class="portal" data-od-id="paramo">
+          <div class="portal-scene scene-paramo" role="img" aria-label="Escena atmosférica de PÁRAMO">
+            <div class="grain"></div>
+            <div class="horizon"></div>
+          </div>
+          <div class="portal-info">
+            <p class="pid">02 / PÁRAMO</p>
+            <h3>PÁRAMO</h3>
+            <p class="genre">Supervivencia experimental</p>
+            <p class="concept">El frío no mata: traduce. Cada paso por la meseta transforma algo dentro de quien camina. Sobrevivir es decidir qué parte conservar.</p>
+            <p class="status"><span class="pulse"></span>Prototipo cerrado</p>
+          </div>
+        </article>
+
+        <article class="portal" data-od-id="anima">
+          <div class="portal-scene scene-anima" role="img" aria-label="Escena atmosférica de ANIMA">
+            <div class="grain"></div>
+            <div class="horizon"></div>
+          </div>
+          <div class="portal-info">
+            <p class="pid">03 / ANIMA</p>
+            <h3>ANIMA</h3>
+            <p class="genre">Acción y exploración</p>
+            <p class="concept">Un cuerpo que no es del todo tuyo y un territorio que respira. La violencia aquí es un lenguaje; aprenderlo es parte del viaje.</p>
+            <p class="status"><span class="pulse"></span>Preproducción</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. PRINCIPIOS -->
+  <section class="section principles" data-od-id="estudio" id="estudio" aria-labelledby="pri-h">
+    <div class="container">
+      <div class="head">
+        <p class="eyebrow">Nuestra forma de crear</p>
+        <h2 id="pri-h">No se trata de <em>genre</em>. Se trata de <em>postura</em>.</h2>
+      </div>
+      <div class="principle-grid">
+        <div class="principle">
+          <div class="sculpture"><div class="sculpt sculpt-1"><div class="face"></div><div class="face"></div><div class="face"></div><div class="face"></div><div class="face"></div><div class="face"></div></div></div>
+          <p class="num">01 / Identidad</p>
+          <h3>Mundos con identidad.</h3>
+          <p class="desc">Cada universo se construye desde su propia lógica. Lo que se ve, lo que se escucha y lo que se siente nace de una voz que no podría ser otra.</p>
+        </div>
+        <div class="principle">
+          <div class="sculpture"><div class="sculpt sculpt-2"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div></div></div>
+          <p class="num">02 / Emoción</p>
+          <h3>Tecnología al servicio de la emoción.</h3>
+          <p class="desc">El motor, el shader y el sistema son medios, no fines. Si una técnica no intensifica lo que el jugador siente, la retiramos.</p>
+        </div>
+        <div class="principle">
+          <div class="sculpture"><div class="sculpt sculpt-3"><div class="shard"></div><div class="shard"></div><div class="shard"></div><div class="shard"></div></div></div>
+          <p class="num">03 / Riesgo</p>
+          <h3>Riesgo creativo como método.</h3>
+          <p class="desc">Buscamos los bordes donde el medio aún no termina de decir algo. La incomodidad productiva es la señal de que estamos donde hay que estar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ORIGEN -->
+  <section class="section origen" data-od-id="origen" id="origen" data-reveal-origen aria-labelledby="ori-h">
+    <div class="plain" aria-hidden="true">
+      <div class="sky"></div>
+      <div class="ground"></div>
+      <div class="ridge"></div>
+      <div class="line"></div>
+      <div class="distant"></div>
+    </div>
+    <div class="container">
+      <div class="origen-copy">
+        <p class="eyebrow">Origen</p>
+        <h2 id="ori-h">Hecho en Argentina.<span class="l2">Pensado para cualquier mundo.</span></h2>
+        <div class="coord">
+          <span>Buenos Aires · Argentina</span>
+          <span class="mono">34°36′S 58°22′W</span>
+          <span class="mono">Est. 2025</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. CTA -->
+  <section class="section cta" data-od-id="contacto" id="contacto" data-reveal-cta aria-labelledby="cta-h">
+    <div class="container cta-inner">
+      <p class="eyebrow">El núcleo</p>
+      <h2 id="cta-h">El próximo mundo empieza acá.</h2>
+      <a class="btn btn-primary btn-arrow" href="mailto:hola@asura.studio">Hablemos</a>
+      <div class="links">
+        <a href="#universos">Trabajos</a>
+        <a href="#estudio">Estudio</a>
+        <a href="mailto:hola@asura.studio">Contacto</a>
+        <a href="#" rel="noopener">Instagram</a>
+        <a href="#" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="recompose" aria-hidden="true">
+        <span>A</span><span>S</span><span>U</span><span>R</span><span>A</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="pagefoot">
+  <span class="brandmark">ASURA</span>
+  <span>© 2025 · Estudio independiente · Buenos Aires, Argentina</span>
+</footer>
+
+<div class="section-num" id="section-num" aria-hidden="true">
+  <span class="dot"></span><span class="label" id="section-num-label">01 / Hero</span>
+</div>
+<div class="hud-strip" id="hud-strip" aria-hidden="true">
+  <span class="coord">34°36′S</span>
+  <span class="coord">58°22′W</span>
+  <span class="depth" id="hud-depth">DEPTH 00%</span>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+
+  // ── scroll progress + HUD + section tracking (independent of 3D) ──
+  const scrollBar = document.getElementById('scroll-progress');
+  const hudDepth = document.getElementById('hud-depth');
+  const sectionNum = document.getElementById('section-num');
+  const sectionLabel = document.getElementById('section-num-label');
+  const topnav = document.querySelector('.topnav');
+  const sections = document.querySelectorAll('main .section');
+  const sectionLabels = ['01 / Hero','02 / Manifiesto','03 / Universos','04 / Estudio','05 / Origen','06 / Núcleo'];
+
+  function onScrollHUD(){
+    const max = document.body.scrollHeight - window.innerHeight;
+    const p = max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
+    scrollBar.style.width = (p * 100).toFixed(2) + '%';
+    hudDepth.textContent = 'DEPTH ' + String(Math.round(p * 100)).padStart(2,'0') + '%';
+    topnav.classList.toggle('is-scrolled', window.scrollY > 12);
+    sectionNum.classList.toggle('is-hidden', p > 0.96);
+  }
+  window.addEventListener('scroll', onScrollHUD, { passive: true });
+  onScrollHUD();
+
+  const sectionObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const idx = Array.from(sections).indexOf(e.target);
+        if (idx >= 0 && idx < sectionLabels.length) sectionLabel.textContent = sectionLabels[idx];
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => sectionObs.observe(s));
+
+  // reveals (work regardless of 3D)
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-in');
+        if (e.target.dataset.reveal === undefined && e.target.dataset.revealLeak === undefined &&
+            e.target.dataset.revealOrigen === undefined && e.target.dataset.revealCta === undefined) {
+          // no-op
+        }
+      }
+    });
+  }, { threshold: 0.25 });
+  document.querySelectorAll('[data-reveal],[data-reveal-leak],[data-reveal-origen],[data-reveal-cta]').forEach(el => io.observe(el));
+  document.querySelectorAll('[data-reveal]').forEach(el => {
+    const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.4 });
+    obs.observe(el);
+  });
+  document.querySelectorAll('[data-reveal-leak]').forEach(el => {
+    const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.5 });
+    obs.observe(el);
+  });
+  document.querySelectorAll('[data-reveal-origen]').forEach(el => {
+    const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.35 });
+    obs.observe(el);
+  });
+  document.querySelectorAll('[data-reveal-cta]').forEach(el => {
+    const obs = new IntersectionObserver((es) => es.forEach(x => { if (x.isIntersecting) x.target.classList.add('is-in'); }), { threshold: 0.4 });
+    obs.observe(el);
+  });
+
+  // bg color shift on scroll (independent of 3D)
+  const bgShift = document.getElementById('bg-shift');
+  function updateBgShift(progress){
+    const p = Math.max(0, Math.min(1, (progress - 0.82) / 0.18));
+    bgShift.style.opacity = p.toFixed(3);
+  }
+
+  if (reduceMotion) {
+    document.getElementById('dust-fallback').hidden = false;
+    window.addEventListener('scroll', () => {
+      const max = document.body.scrollHeight - window.innerHeight;
+      updateBgShift(max > 0 ? window.scrollY / max : 0);
+    }, { passive: true });
+  } else {
+    let THREE;
+    try {
+      THREE = await import('three');
+    } catch (err) {
+      console.warn('ASURA: three.js no cargó, fallback estático.', err);
+      document.getElementById('dust-fallback').hidden = false;
+      window.addEventListener('scroll', () => {
+        const max = document.body.scrollHeight - window.innerHeight;
+        updateBgShift(max > 0 ? window.scrollY / max : 0);
+      }, { passive: true });
+    }
+
+    if (THREE) {
+      const canvas = document.getElementById('artifact-canvas');
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: !isMobile, alpha: true, powerPreference: 'high-performance' });
+      } catch (err) {
+        console.warn('ASURA: WebGL no disponible, fallback estático.', err);
+        document.getElementById('dust-fallback').hidden = false;
+      }
+
+      if (renderer) {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0a0806, 0.045);
+
+        const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 8);
+
+        // ── core ──
+        const coreGeo = new THREE.IcosahedronGeometry(0.55, 1);
+        const coreMat = new THREE.MeshStandardMaterial({
+          color: 0x1a0c08,
+          emissive: 0x6b1410,
+          emissiveIntensity: 1.2,
+          roughness: 0.35,
+          metalness: 0.3,
+          flatShading: true
+        });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        scene.add(core);
+
+        // ── inner glow shell ──
+        const glowGeo = new THREE.IcosahedronGeometry(0.85, 1);
+        const glowMat = new THREE.MeshBasicMaterial({
+          color: 0x8a1a12,
+          transparent: true,
+          opacity: 0.12,
+          side: THREE.BackSide,
+          blending: THREE.AdditiveBlending
+        });
+        const glow = new THREE.Mesh(glowGeo, glowMat);
+        scene.add(glow);
+
+        // ── lights ──
+        const coreLight = new THREE.PointLight(0x9a1e14, 4.5, 14);
+        coreLight.position.set(0, 0, 0);
+        scene.add(coreLight);
+        scene.add(new THREE.AmbientLight(0x1a1a22, 0.45));
+        const rim = new THREE.DirectionalLight(0x6a7080, 0.35);
+        rim.position.set(-4, 3, -2);
+        scene.add(rim);
+
+        // ── floating plates ──
+        const plates = [];
+        const plateCount = isMobile ? 6 : 11;
+        for (let i = 0; i < plateCount; i++) {
+          const w = 0.7 + Math.random() * 1.5;
+          const h = 0.5 + Math.random() * 1.3;
+          const d = 0.03 + Math.random() * 0.05;
+          const geo = new THREE.BoxGeometry(w, h, d);
+          const isWarm = Math.random() < 0.22;
+          const isGlacial = !isWarm && Math.random() < 0.15;
+          const mat = new THREE.MeshStandardMaterial({
+            color: isWarm ? 0x2c1812 : (isGlacial ? 0x1a1e26 : 0x1b1c20),
+            emissive: isWarm ? 0x3a0a06 : (isGlacial ? 0x0a1622 : 0x000000),
+            emissiveIntensity: isWarm ? 0.45 : (isGlacial ? 0.25 : 0),
+            roughness: 0.7 + Math.random() * 0.25,
+            metalness: 0.55 + Math.random() * 0.35,
+            transparent: true,
+            opacity: 0.93
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          const angle = (i / plateCount) * Math.PI * 2 + Math.random() * 0.5;
+          const r = 1.5 + Math.random() * 1.5;
+          mesh.position.set(
+            Math.cos(angle) * r,
+            (Math.random() - 0.5) * 2.4,
+            Math.sin(angle) * r
+          );
+          mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+          mesh.userData = {
+            baseAngle: angle,
+            baseR: r,
+            baseY: mesh.position.y,
+            rotX: (Math.random() - 0.5) * 0.0022,
+            rotY: (Math.random() - 0.5) * 0.0018,
+            orbit: (Math.random() - 0.5) * 0.0004,
+            phase: Math.random() * Math.PI * 2
+          };
+          scene.add(mesh);
+          plates.push(mesh);
+        }
+
+        // ── mineral dust ──
+        const dustCount = isMobile ? 220 : 620;
+        const dustGeo = new THREE.BufferGeometry();
+        const dustPos = new Float32Array(dustCount * 3);
+        for (let i = 0; i < dustCount; i++) {
+          const r = 2.5 + Math.random() * 8;
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          dustPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
+          dustPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+          dustPos[i*3+2] = r * Math.cos(phi);
+        }
+        dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+        const dustMat = new THREE.PointsMaterial({
+          color: 0x9a8e80,
+          size: 0.014,
+          transparent: true,
+          opacity: 0.55,
+          sizeAttenuation: true,
+          depthWrite: false
+        });
+        const dust = new THREE.Points(dustGeo, dustMat);
+        scene.add(dust);
+
+        // ── input ──
+        const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+        if (!isMobile) {
+          window.addEventListener('mousemove', (e) => {
+            mouse.tx = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouse.ty = (e.clientY / window.innerHeight - 0.5) * 2;
+          }, { passive: true });
+        }
+
+        let scrollProgress = 0;
+        function onScroll(){
+          const max = document.body.scrollHeight - window.innerHeight;
+          scrollProgress = max > 0 ? Math.max(0, Math.min(1, window.scrollY / max)) : 0;
+          updateBgShift(scrollProgress);
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        window.addEventListener('resize', () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const clock = new THREE.Clock();
+        let raf;
+        const visObs = new IntersectionObserver((es) => {
+          es.forEach(x => {
+            if (x.isIntersecting && !raf) { raf = requestAnimationFrame(animate); }
+            else if (!x.isIntersecting && raf) { cancelAnimationFrame(raf); raf = null; }
+          });
+        }, { threshold: 0 });
+        visObs.observe(canvas);
+
+        function animate(){
+          raf = requestAnimationFrame(animate);
+          const t = clock.getElapsedTime();
+          mouse.x += (mouse.tx - mouse.x) * 0.04;
+          mouse.y += (mouse.ty - mouse.y) * 0.04;
+
+          // scroll-driven camera: 8 → 0.7 (just outside core)
+          const camZ = 8 - scrollProgress * 7.3;
+          camera.position.x = mouse.x * 0.45;
+          camera.position.y = -mouse.y * 0.32;
+          camera.position.z = camZ;
+          camera.lookAt(0, 0, 0);
+
+          // core pulse — intensifies as we approach
+          const pulse = 0.95 + Math.sin(t * 1.1) * 0.18 + scrollProgress * 1.6;
+          coreMat.emissiveIntensity = pulse;
+          glowMat.opacity = 0.10 + scrollProgress * 0.18 + Math.sin(t * 1.1) * 0.02;
+          coreLight.intensity = 3.2 + pulse * 1.6;
+          core.rotation.y = t * 0.08;
+          core.rotation.x = t * 0.05;
+          glow.rotation.y = -t * 0.04;
+
+          // plates: orbit + scroll-separation (camera passes through)
+          const sep = 1 + scrollProgress * 1.8;
+          plates.forEach(p => {
+            const ud = p.userData;
+            const a = ud.baseAngle + t * ud.orbit * 100;
+            p.position.x = Math.cos(a) * ud.baseR * sep;
+            p.position.z = Math.sin(a) * ud.baseR * sep;
+            p.position.y = ud.baseY + Math.sin(t * 0.35 + ud.phase) * 0.18;
+            p.rotation.x += ud.rotX;
+            p.rotation.y += ud.rotY;
+          });
+
+          dust.rotation.y = t * 0.012;
+          dust.rotation.x = t * 0.006;
+
+          renderer.render(scene, camera);
+        }
+        raf = requestAnimationFrame(animate);
+      }
+    }
+  }
+</script>
+</body>
+</html>

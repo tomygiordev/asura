@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "ASURA — Estudio argentino de videojuegos",
+  "entry": "asura-landing.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "primary": true,
+  "createdAt": "2026-06-21T06:42:40.514Z",
+  "updatedAt": "2026-06-21T06:42:40.519Z",
+  "sourceSkillId": "agent-browser",
+  "metadata": {
+    "identifier": "asura-landing",
+    "artifactType": "text/html",
+    "inferred": false
+  }
+}
