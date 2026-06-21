@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ASURA Logo Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #0d0d14;
+      color: #e8e4df;
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      gap: 60px;
+    }
+    h1 {
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #666;
+      font-weight: 800;
+    }
+    .logo-showcase {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+    .logo-large {
+      width: 300px;
+      height: 300px;
+    }
+    .sizes {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .sizes img {
+      display: block;
+    }
+    .label {
+      font-size: 11px;
+      color: #555;
+      text-align: center;
+      margin-top: 8px;
+      letter-spacing: 0.1em;
+    }
+    .context-row {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .context-card {
+      border-radius: 12px;
+      padding: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .on-dark { background: #1a1a2e; }
+    .on-light { background: #e8e4df; }
+    .on-accent { background: linear-gradient(135deg, #2d1b69, #1a1a2e); }
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-lockup img {
+      width: 48px;
+      height: 48px;
+    }
+    .brand-lockup span {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+    }
+    .on-light .brand-lockup span { color: #1a1a2e; }
+    hr {
+      width: 100%;
+      max-width: 600px;
+      border: none;
+      border-top: 1px solid #222;
+    }
+  </style>
+</head>
+<body>
+  <h1>ASURA — Logo Preview</h1>
+  
+  <div class="logo-showcase">
+    <img src="logo-asura.svg" class="logo-large" alt="ASURA Logo"/>
+    
+    <div class="sizes">
+      <div>
+        <img src="logo-asura.svg" width="128" height="128" alt="128px"/>
+        <div class="label">128px</div>
+      </div>
+      <div>
+        <img src="logo-asura.svg" width="64" height="64" alt="64px"/>
+        <div class="label">64px</div>
+      </div>
+      <div>
+        <img src="logo-asura.svg" width="32" height="32" alt="32px"/>
+        <div class="label">32px</div>
+      </div>
+      <div>
+        <img src="logo-asura.svg" width="16" height="16" alt="16px"/>
+        <div class="label">16px</div>
+      </div>
+    </div>
+  </div>
+  
+  <hr/>
+  
+  <div class="context-row">
+    <div class="context-card on-dark">
+      <div class="brand-lockup">
+        <img src="logo-asura.svg" alt=""/>
+        <span>ASURA</span>
+      </div>
+      <div class="label">ON DARK</div>
+    </div>
+    
+    <div class="context-card on-light">
+      <div class="brand-lockup">
+        <img src="logo-asura.svg" alt=""/>
+        <span>ASURA</span>
+      </div>
+      <div class="label">ON LIGHT</div>
+    </div>
+    
+    <div class="context-card on-accent">
+      <div class="brand-lockup">
+        <img src="logo-asura.svg" alt=""/>
+        <span>ASURA</span>
+      </div>
+      <div class="label">ON ACCENT</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet" />
 <style>
   :root{
-    --bg:        oklch(11% 0.035 302);
+    --bg:        oklch(21% 0.07 302);
     --surface:   oklch(20% 0.075 302);
     --fg:        oklch(94% 0.015 132);
     --muted:     oklch(66% 0.035 302);
@@ -42,7 +42,7 @@
   *,*::before,*::after{ box-sizing:border-box; }
   html{
     -webkit-text-size-adjust:100%;
-    scroll-behavior:auto;
+    scroll-behavior:smooth;
     width:100%;
     max-width:100%;
     overflow-x:clip;
@@ -73,6 +73,7 @@
   .bg-base{
     position:fixed; inset:0; z-index:0;
     background:
+      radial-gradient(ellipse 65% 55% at 50% 45%, transparent 40%, oklch(8% 0.04 302) 100%),
       radial-gradient(ellipse 80% 60% at 50% 40%, oklch(23% 0.11 302), transparent 70%),
       radial-gradient(ellipse 60% 80% at 82% 90%, oklch(18% 0.07 137), transparent 62%),
       var(--bg);
@@ -80,7 +81,7 @@
   .bg-shift{
     position:fixed; inset:0; z-index:0; opacity:0;
     background:
-      radial-gradient(ellipse 90% 100% at 50% 50%, oklch(39% 0.20 302), oklch(24% 0.14 302) 60%, oklch(14% 0.07 302) 100%);
+      radial-gradient(ellipse 90% 100% at 50% 50%, oklch(18% 0.06 302), oklch(17% 0.06 302) 60%, var(--bg) 100%);
     transition:opacity .4s linear; pointer-events:none;
   }
   .dust-fallback{
@@ -93,6 +94,7 @@
       radial-gradient(1px 1px at 91% 48%, var(--muted) 50%, transparent 51%);
     background-size:100% 100%;
   }
+
   .bg-type{
     position:fixed; inset:0; z-index:0; pointer-events:none;
     display:flex; align-items:center; justify-content:flex-start;
@@ -1105,6 +1107,7 @@
 <a class="skip" href="#main">Saltar al contenido</a>
 
 <div class="bg-base" aria-hidden="true"></div>
+<canvas id="comet-canvas" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none"></canvas>
 <div class="bg-shift" aria-hidden="true" id="bg-shift"></div>
 <div class="dust-fallback" aria-hidden="true" id="dust-fallback" hidden></div>
 <div class="bg-type" aria-hidden="true"><span>ASURA</span></div>
@@ -1824,7 +1827,7 @@
         renderer.setClearColor(0x000000, 0);
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0b0614, 0.045);
+        scene.fog = new THREE.FogExp2(0x211035, 0.045);
 
         const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 0, 8);
@@ -1836,8 +1839,8 @@
             uTime: { value: 0 },
             uScroll: { value: 0 },
             uFinalFocus: { value: 0 },
-            uColorLow: { value: new THREE.Color(0x120320) },
-            uColorHigh: { value: new THREE.Color(0x3b125e) }
+            uColorLow: { value: new THREE.Color(0x210836) },
+            uColorHigh: { value: new THREE.Color(0x5e19a6) }
           },
           vertexShader: `
             varying vec3 vPosition;
@@ -1882,8 +1885,8 @@
               float rim = 1.0 - max(0.0, dot(vNormal, vec3(0.0, 0.0, 1.0)));
               rim = pow(rim, 3.0);
 
-              vec3 color = mix(uColorLow, uColorHigh, factor * (0.65 + uScroll * 0.35) + rim * 0.6);
-              float intensity = 1.2 + sin(uTime * 2.5) * 0.12 + uScroll * 0.8 + uFinalFocus * 1.5;
+              vec3 color = mix(uColorLow, uColorHigh, factor * (0.65 + uScroll * 0.15) + rim * 0.6);
+              float intensity = 1.2 + sin(uTime * 2.5) * 0.12 + uScroll * 0.2 + uFinalFocus * 0.3;
 
               gl_FragColor = vec4(color * intensity, 1.0);
             }
@@ -1896,8 +1899,8 @@
             uTime: { value: 0 },
             uScroll: { value: 0 },
             uOpacity: { value: 1.0 },
-            uColorLow: { value: new THREE.Color(0x150325) },
-            uColorHigh: { value: new THREE.Color(0x3b125e) }
+            uColorLow: { value: new THREE.Color(0x120320) },
+            uColorHigh: { value: new THREE.Color(0x2e0c4a) }
           },
           vertexShader: `
             varying vec3 vPosition;
@@ -1980,9 +1983,9 @@
 
         const glowGeo = new THREE.CircleGeometry(0.76, 64);
         const glowMat = new THREE.MeshBasicMaterial({
-          color: 0x3b125e,
+          color: 0x5e19a6,
           transparent: true,
-          opacity: 0.04,
+          opacity: 0.07,
           depthWrite: false,
           blending: THREE.AdditiveBlending
         });
@@ -1991,11 +1994,11 @@
         scene.add(glow);
 
         // ── lights ──
-        const coreLight = new THREE.PointLight(0x51147d, 2.0, 8);
+        const coreLight = new THREE.PointLight(0x631899, 2.0, 8);
         coreLight.position.set(0, 0, 0);
         scene.add(coreLight);
         scene.add(new THREE.AmbientLight(0x241238, 0.35));
-        const rim = new THREE.DirectionalLight(0x3b125e, 0.15);
+        const rim = new THREE.DirectionalLight(0x5e19a6, 0.15);
         rim.position.set(-4, 3, -2);
         scene.add(rim);
 
@@ -2132,7 +2135,7 @@
           camera.lookAt(0, 0, 0);
 
           // core pulse — intensifies as we approach
-          const pulse = 0.95 + Math.sin(t * 1.1) * 0.18 + sceneProgress * 1.6;
+          const pulse = 0.95 + Math.sin(t * 1.1) * 0.18 + sceneProgress * 0.4;
           
           // Update shader uniforms
           goldMat.uniforms.uTime.value = t;
@@ -2165,6 +2168,137 @@
       }
     }
   }
+</script>
+<script>
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv=document.getElementById('comet-canvas');
+  if(!cv) return;
+  const c=cv.getContext('2d');
+  let dpr=Math.min(window.devicePixelRatio||1,2);
+  function resize(){const w=window.innerWidth,h=window.innerHeight;cv.width=w*dpr;cv.height=h*dpr;c.setTransform(dpr,0,0,dpr,0,0);}
+  resize(); window.addEventListener('resize',resize);
+
+  const comets=[],twinkles=[];
+
+  class Comet{
+    constructor(){
+      const W=window.innerWidth,H=window.innerHeight;
+      const r=Math.random();
+      if(r<0.45){this.x=Math.random()*W;this.y=-10;this.a=Math.PI*(0.35+Math.random()*0.3);}
+      else if(r<0.7){this.x=W+10;this.y=Math.random()*H*0.5;this.a=Math.PI*(0.6+Math.random()*0.25);}
+      else if(r<0.9){this.x=-10;this.y=Math.random()*H*0.4;this.a=Math.PI*(0.05+Math.random()*0.25);}
+      else{this.x=Math.random()*W;this.y=H+10;this.a=-Math.PI*(0.2+Math.random()*0.6);}
+      this.spd=1.8+Math.random()*3.2;
+      this.vx=Math.cos(this.a)*this.spd;
+      this.vy=Math.sin(this.a)*this.spd;
+      this.trail=[];
+      this.tLen=35+Math.floor(Math.random()*45);
+      this.life=0;
+      this.maxLife=100+Math.floor(Math.random()*140);
+      this.sz=0.6+Math.random()*1.4;
+      this.peak=0.12+Math.random()*0.22;
+      this.dead=false;
+    }
+    update(){
+      this.life++;
+      const p=this.life/this.maxLife;
+      let al;
+      if(p<0.08) al=p/0.08*this.peak;
+      else if(p>0.65) al=(1-p)/0.35*this.peak;
+      else al=this.peak;
+      this.trail.unshift({x:this.x,y:this.y,a:al});
+      if(this.trail.length>this.tLen) this.trail.pop();
+      this.x+=this.vx; this.y+=this.vy;
+      this.vx*=0.997; this.vy*=0.997;
+      if(this.life>=this.maxLife) this.dead=true;
+    }
+    draw(c){
+      if(this.trail.length<2) return;
+      // trail
+      for(let i=1;i<this.trail.length;i++){
+        const p0=this.trail[i-1],p1=this.trail[i];
+        const t=1-i/this.trail.length;
+        const la=p0.a*t*t;
+        if(la<0.003) continue;
+        c.beginPath();
+        c.moveTo(p0.x,p0.y);
+        c.lineTo(p1.x,p1.y);
+        c.strokeStyle='rgba(210,200,240,'+la.toFixed(4)+')';
+        c.lineWidth=this.sz*t;
+        c.lineCap='round';
+        c.stroke();
+      }
+      // head glow
+      const h=this.trail[0];
+      if(!h||h.a<0.01) return;
+      const gr=this.sz*8;
+      const g=c.createRadialGradient(h.x,h.y,0,h.x,h.y,gr);
+      g.addColorStop(0,'rgba(225,215,255,'+(.7*h.a).toFixed(4)+')');
+      g.addColorStop(.25,'rgba(180,155,230,'+(.35*h.a).toFixed(4)+')');
+      g.addColorStop(1,'rgba(100,70,160,0)');
+      c.fillStyle=g;
+      c.fillRect(h.x-gr,h.y-gr,gr*2,gr*2);
+      // core dot
+      c.beginPath();
+      c.arc(h.x,h.y,this.sz*.7,0,Math.PI*2);
+      c.fillStyle='rgba(240,235,255,'+(.9*h.a).toFixed(4)+')';
+      c.fill();
+    }
+  }
+
+  class Twinkle{
+    constructor(){
+      this.x=Math.random()*window.innerWidth;
+      this.y=Math.random()*window.innerHeight;
+      this.life=0;
+      this.maxLife=40+Math.floor(Math.random()*60);
+      this.sz=0.4+Math.random()*0.8;
+      this.peak=0.08+Math.random()*0.18;
+      this.dead=false;
+    }
+    update(){this.life++;if(this.life>=this.maxLife) this.dead=true;}
+    draw(c){
+      const p=this.life/this.maxLife;
+      const al=Math.sin(p*Math.PI)*this.peak;
+      if(al<0.005) return;
+      // soft glow
+      const r=this.sz*5;
+      const g=c.createRadialGradient(this.x,this.y,0,this.x,this.y,r);
+      g.addColorStop(0,'rgba(220,215,255,'+al.toFixed(4)+')');
+      g.addColorStop(.4,'rgba(180,170,220,'+(al*.25).toFixed(4)+')');
+      g.addColorStop(1,'rgba(100,80,160,0)');
+      c.fillStyle=g;
+      c.fillRect(this.x-r,this.y-r,r*2,r*2);
+      // cross glint at peak
+      if(p>.25&&p<.75){
+        const ga=Math.sin((p-.25)/.5*Math.PI)*al*.5;
+        c.strokeStyle='rgba(215,210,250,'+ga.toFixed(4)+')';
+        c.lineWidth=.4;
+        const s=this.sz*8;
+        c.beginPath();
+        c.moveTo(this.x-s,this.y);c.lineTo(this.x+s,this.y);
+        c.moveTo(this.x,this.y-s);c.lineTo(this.x,this.y+s);
+        c.stroke();
+      }
+    }
+  }
+
+  let lastC=0,lastT=0;
+  let nextC=300+Math.random()*1000;
+  let nextT=150+Math.random()*500;
+
+  function loop(t){
+    requestAnimationFrame(loop);
+    const W=window.innerWidth,H=window.innerHeight;
+    c.clearRect(0,0,W,H);
+    if(t-lastC>nextC){comets.push(new Comet());lastC=t;nextC=800+Math.random()*1700;}
+    if(t-lastT>nextT){twinkles.push(new Twinkle());lastT=t;nextT=250+Math.random()*750;}
+    for(let i=comets.length-1;i>=0;i--){comets[i].update();comets[i].draw(c);if(comets[i].dead)comets.splice(i,1);}
+    for(let i=twinkles.length-1;i>=0;i--){twinkles[i].update();twinkles[i].draw(c);if(twinkles[i].dead)twinkles.splice(i,1);}
+  }
+  requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
